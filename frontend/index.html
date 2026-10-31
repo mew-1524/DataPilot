@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07111f">
-<title>DataPilot — Analytics workspace</title>
+<meta name="theme-color" content="#f0f1f6">
+<title>DataPilot</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,15 +14,13 @@
 <aside class="sidebar">
   <a class="brand" href="#Overview" aria-label="DataPilot home">
     <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M9 8h18c9 0 15 6 15 15s-6 17-16 17H9" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/><path d="M14 29V21h5v8m3 0V16h5v13m3 0V11h5v18" fill="#effaff"/><path d="m12 32 23-14 7-7" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><path d="m36 10 7 1-2 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="g" x1="8" y1="8" x2="42" y2="40" gradientUnits="userSpaceOnUse"><stop stop-color="#36d8ff"/><stop offset="1" stop-color="#3278ff"/></linearGradient></defs></svg></span>
-    <span class="brand-type"><strong>DATA<span>PILOT</span></strong><small>ANALYTICS WORKSPACE</small></span>
+    <span class="brand-type"><strong>DATA<span>PILOT</span></strong></span>
   </a>
-  <div class="side-caption">WORKSPACE</div>
   <nav id="nav" aria-label="Main navigation"></nav>
-  <div class="sidebar-bottom"><div class="secure-icon">✦</div><div><b>Your data stays yours</b><small>Private session · auto expires in 1 hour</small></div></div>
 </aside>
 <div class="main">
-  <header class="topbar"><div class="crumb"><span>Workspace</span><i>/</i><b id="ds">No dataset</b></div><div class="top-actions"><span id="status" class="pill"><i></i> Waiting for upload</span><span class="privacy"><span>⌑</span> Private session</span><div class="avatar">DP</div></div></header>
-  <main><div id="pagehead"></div><div id="view"></div><footer>DataPilot <span>·</span> Turn raw data into clear decisions.</footer></main>
+  <header class="topbar"><div class="dataset"><b id="ds">No dataset</b><span id="status" class="pill"><i></i> Waiting for upload</span></div></header>
+  <main><div id="pagehead"></div><div id="view"></div></main>
 </div>
 <div id="toast" role="status"></div>
 <script src="js/app.js"></script>

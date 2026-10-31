@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from analytics import chart, eda, insights
+from chat import answer as chat_answer
 from cleaning import OPS, kind, profile, quality, smart_types, textcols
 
 warnings.filterwarnings("ignore")
@@ -122,6 +123,18 @@ def chart_ep(mode: str = "group", x: str = "", y: str = "", agg: str = "mean", s
 
 @app.get("/api/insights")
 def ins(s=Depends(cur)): return insights(s["df"])
+
+
+@app.post("/api/chat")
+async def chat_ep(p: dict = Body(default={}), s=Depends(cur)):
+    message = p.get("message")
+    if not isinstance(message, str) or not message.strip(): raise ValueError("Type a question first.")
+    history = p.get("history", [])
+    if not isinstance(history, list): history = []
+    try:
+        return {"answer": await chat_answer(s["df"], message.strip(), history)}
+    except RuntimeError as e:
+        raise HTTPException(503, str(e)) from e
 
 
 def safe(d):

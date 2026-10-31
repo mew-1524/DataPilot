@@ -2,11 +2,11 @@ const $ = s => document.querySelector(s);
 const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const M = (a, f) => a.map(f).join('');
 const cap = s => s[0].toUpperCase() + s.slice(1);
-const PAGES = [['Overview','Overview','⌂'],['Upload','Upload data','↥'],['Cleaning','Data cleaning','✳'],['Explorer','Data explorer','▤'],
-  ['EDA','EDA studio','◒'],['Quality','Data quality','◇'],['Analytics','Insights','✧'],['Reports','Reports & exports','⇩']];
-const PAGECOPY = {Overview:['Your data, at a glance','A clear snapshot of the dataset you’re working with.'],Upload:['Bring your data into focus','Upload a CSV and get a clean, analysis-ready starting point.'],Cleaning:['Make your data analysis-ready','Preview changes, apply them with confidence, and undo any step.'],Explorer:['Get closer to the details','Search, sort, and inspect every row in your dataset.'],EDA:['Explore what your data is saying','Build a chart, review distributions, and spot relationships.'],Quality:['Know what you can trust','See completeness, consistency, and issues across your columns.'],Analytics:['Insights, made understandable','Useful patterns calculated directly from your current dataset.'],Reports:['Take your work with you','Export cleaned data and a record of your transformations.']};
+const PAGES = [['Overview','Overview','⌂'],['Upload','Upload','↥'],['Cleaning','Cleaning','✳'],['Explorer','Explorer','▤'],['Chat','Chat with CSV','✧'],
+  ['EDA','EDA','◒'],['Quality','Quality','◇'],['Analytics','Insights','✧'],['Reports','Reports','⇩']];
 let SID = localStorage.getItem('sid'), PROF = null, META = {}, CH = null;
 const R = {};
+let CHAT = [];
 
 function toast(m, bad) { const t = $('#toast'); t.textContent = m; t.className = bad ? 'bad show' : 'show';
   clearTimeout(toast.t); toast.t = setTimeout(() => t.className = '', 3500); }
@@ -40,8 +40,8 @@ function go(p) { location.hash === '#' + p ? render() : location.hash = p; }
 async function render() {
   const p = location.hash.slice(1) || (PROF ? 'Overview' : 'Upload');
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.p === p));
-  const copy = PAGECOPY[p] || PAGECOPY.Overview;
-  $('#pagehead').innerHTML = `<div class="page-heading"><div><p class="eyebrow">DATAPILOT WORKSPACE</p><h1>${copy[0]}</h1><p>${copy[1]}</p></div>${PROF ? `<span class="heading-action">Working with <b>${esc(META.name)}</b></span>` : ''}</div>`;
+  const title = PAGES.find(([key]) => key === p)?.[1] || 'Overview';
+  $('#pagehead').innerHTML = `<div class="page-heading"><h1>${title}</h1></div>`;
   if (!R[p]) return;
   if (!PROF && p !== 'Upload') return view(`<section><h2>No dataset yet</h2><p class="muted">Upload a CSV file to get started.</p><button class="primary" onclick="go('Upload')">Upload dataset</button></section>`);
   try { await R[p](); } catch (e) { toast(e.message, 1); }
@@ -56,7 +56,7 @@ R.Overview = async () => {
 };
 
 R.Upload = () => {
-  view(`<section><h2>Start with your data</h2><p class="muted">Drop in a CSV and DataPilot will profile it instantly, so you can move straight into analysis.</p><label class="drop" id="drop"><strong>Drop your CSV file here</strong><span>or <u>browse files</u> from your device</span><input id="file" type="file" accept=".csv" hidden></label>
+  view(`<section><h2>Upload CSV</h2><label class="drop" id="drop"><strong>Drop your CSV file here</strong><span>or <u>browse files</u></span><input id="file" type="file" accept=".csv" hidden></label>
   <div class="bar" id="bar" hidden><i></i></div><div class="upload-foot"><p class="muted">CSV format · Up to 20 MB</p><p class="muted">⌑&nbsp; Your file stays private to this session</p></div></section><div id="prev"></div>`);
   const d = $('#drop');
   ['dragover', 'dragenter'].forEach(e => d.addEventListener(e, x => { x.preventDefault(); d.classList.add('on'); }));
@@ -74,7 +74,7 @@ function send(f) {
   x.upload.onprogress = e => b.firstChild.style.width = (e.loaded / e.total * 100) + '%';
   x.onload = async () => { let r = {}; try { r = JSON.parse(x.responseText); } catch {}
     if (x.status !== 200) { b.hidden = true; return toast(typeof r.detail === 'string' ? r.detail : 'Upload failed.', 1); }
-    SID = r.sid; localStorage.setItem('sid', SID); await refresh(); toast('Uploaded and profiled.'); showPrev(); };
+    SID = r.sid; CHAT = []; localStorage.setItem('sid', SID); await refresh(); toast('Uploaded and profiled.'); showPrev(); };
   x.onerror = () => toast('Could not reach the server.', 1);
   x.send(fd);
 }
@@ -159,11 +159,11 @@ R.EDA = async () => {
     const mode = t === 'histogram' ? 'hist' : t === 'scatter' ? 'scatter' : 'group';
     try {
       const r = await api('chart?' + new URLSearchParams({mode, x, y, agg: a}));
-      CH?.destroy(); const circ = ['pie', 'doughnut'].includes(t), pal = ['#4F46E5','#0EA5E9','#16A34A','#D97706','#DC2626','#7C3AED','#64748B'];
+      CH?.destroy(); const circ = ['pie', 'doughnut'].includes(t), pal = ['#7440df','#ed5f9c','#55bf61','#5591e1','#f1a74b','#ef5652','#a67be8'];
       CH = new Chart($('#cv'), {type: t === 'histogram' ? 'bar' : t,
-        data: mode === 'scatter' ? {datasets: [{label: `${y} vs ${x}`, data: r.points, backgroundColor: '#4F46E5'}]}
+        data: mode === 'scatter' ? {datasets: [{label: `${y} vs ${x}`, data: r.points, backgroundColor: '#7440df'}]}
           : {labels: r.labels, datasets: [{label: y && a !== 'count' ? `${a} of ${y}` : 'count', data: r.values,
-            backgroundColor: circ ? r.labels.map((_, i) => pal[i % pal.length]) : '#4F46E5', borderColor: '#4F46E5'}]},
+            backgroundColor: circ ? r.labels.map((_, i) => pal[i % pal.length]) : '#7440df', borderColor: '#7440df'}]},
         options: {responsive: true, maintainAspectRatio: false},
         plugins: [{id: 'bg', beforeDraw: c => { c.ctx.save(); c.ctx.globalCompositeOperation = 'destroy-over'; c.ctx.fillStyle = '#fff'; c.ctx.fillRect(0, 0, c.width, c.height); c.ctx.restore(); }}]});
     } catch (e) { toast(e.message, 1); }
@@ -188,6 +188,28 @@ R.Quality = async () => {
 R.Analytics = async () => {
   const l = await api('insights');
   view(`<section><h2>Insights from your data</h2><p class="muted">Every statement below is calculated from the current dataset.</p><ul>${M(l, i => `<li>${esc(i)}</li>`)}</ul></section>`);
+};
+
+R.Chat = () => {
+  view(`<section class="chat-card"><div class="chat-header"><h2>Chat with CSV</h2><span class="local-badge">Local AI</span></div><div id="chatlog" class="chat-log" aria-live="polite"></div>
+  <form id="chatform" class="chat-form"><textarea id="chatinput" rows="2" maxlength="2000" placeholder="Ask a question about your data…" aria-label="Ask a question about your CSV"></textarea><button id="chatsend" class="primary" type="submit">Send</button></form>
+  <p class="chat-note">Answers are generated locally from your current dataset.</p></section>`);
+  const log = $('#chatlog');
+  const paint = () => {
+    log.innerHTML = CHAT.length ? M(CHAT, m => `<div class="chat-message ${m.role === 'user' ? 'user' : 'assistant'}"><div>${esc(m.content).replace(/\n/g, '<br>')}</div></div>`)
+      : '<div class="chat-empty">Ask a question about your uploaded CSV.</div>';
+    log.scrollTop = log.scrollHeight;
+  };
+  paint();
+  const form = $('#chatform'), input = $('#chatinput'), send = $('#chatsend');
+  form.onsubmit = async e => {
+    e.preventDefault(); const message = input.value.trim(); if (!message || send.disabled) return;
+    const history = CHAT.slice(-12); CHAT.push({role: 'user', content: message}); input.value = ''; send.disabled = true; send.textContent = '…';
+    CHAT.push({role: 'assistant', content: 'Thinking…'}); paint();
+    try { const result = await api('chat', {json: {message, history}}); CHAT[CHAT.length - 1] = {role: 'assistant', content: result.answer}; }
+    catch (e) { CHAT[CHAT.length - 1] = {role: 'assistant', content: e.message}; }
+    finally { send.disabled = false; send.textContent = 'Send'; paint(); input.focus(); }
+  };
 };
 
 R.Reports = () => {

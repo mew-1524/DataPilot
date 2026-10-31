@@ -31,6 +31,18 @@ uvicorn main:app --reload
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and upload `sample_data/messy_sales.csv` to try the app. The interactive API documentation is at [http://127.0.0.1:8000/api/docs](http://127.0.0.1:8000/api/docs).
 
+## Enable local CSV chat
+
+Install [Ollama](https://ollama.com/download), then pull the local model once:
+
+```powershell
+ollama pull llama3.2
+```
+
+Keep Ollama running while DataPilot is open, then start the FastAPI app as above. Open **Chat with CSV** after uploading a dataset. The app calls Ollama on `http://127.0.0.1:11434`; no cloud API key is used. The model can answer questions with read-only data tools and cannot change the uploaded dataset.
+
+To use a different locally installed model or Ollama server, set `OLLAMA_MODEL` or `OLLAMA_URL` in the environment before starting FastAPI. The defaults are `llama3.2` and `http://127.0.0.1:11434`.
+
 ## Run locally on macOS or Linux
 
 From the repository root:
