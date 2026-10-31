@@ -70,7 +70,6 @@ backend/       FastAPI routes, cleaning operations, and analytics
 frontend/      Single-page web interface (HTML, CSS, and JavaScript)
 sample_data/   Small CSV dataset for trying the app
 tests/         Backend and API tests
-reports/       Generated reports (kept out of Git)
 ```
 
 ## Data and security notes
